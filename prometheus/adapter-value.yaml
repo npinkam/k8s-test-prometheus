@@ -1,0 +1,17 @@
+prometheus:
+  # Value is templated
+  url: http://prom-release-prometheus-server.default.svc
+  port: 80
+rules:
+  custom:
+  - seriesQuery: '{kubernetes_pod_name!="",kubernetes_namespace!=""}'
+    resources:
+      overrides:
+        kubernetes_namespace:
+          resource: namespace
+        kubernetes_pod_name:
+          resource: pod
+    name:
+      matches: "occupied"
+      as: "occupied"
+    metricsQuery: <<.Series>>{<<.LabelMatchers>>}

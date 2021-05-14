@@ -1,0 +1,22 @@
+apiVersion: autoscaling/v2beta2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: my-hpa
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: my-sts
+  # autoscale between 1 and 10 replicas
+  minReplicas: 1
+  maxReplicas: 20
+  metrics:
+  # use a "Pods" metric, which takes the average of the
+  # given metric across all pods controlled by the autoscaling target
+  - type: Pods
+    pods:
+      metric:
+        name: occupied
+      target:
+        type: AverageValue
+        averageValue: 0.5

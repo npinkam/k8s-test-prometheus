@@ -1,0 +1,25 @@
+{
+  "name": "testk8s",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "del": "microk8s helm3 delete prom-release ; microk8s helm3 delete promadapter-release ; kubectl delete all --all",
+    "dep:addon": "microk8s enable dns storage helm3 ingress",
+    "dep:prom": "microk8s helm3 repo add prometheus-community https://prometheus-community.github.io/helm-charts && microk8s helm3 repo update && microk8s helm3 install prom-release prometheus-community/prometheus",
+    "dep:promAdapter": "microk8s helm3 install -f ./prometheus/adapter-value.yaml promadapter-release prometheus-community/prometheus-adapter",
+    "dep": "npm run dep:addon && kubectl create namespace prometheus ; npm run dep:prom && npm run dep:promAdapter && kubectl apply -f deployment",
+    "redep": "npm run del && npm run dep",
+    "reset": "./microk8s-install/reset.sh",
+    "adapupgrade": "microk8s helm3 upgrade -f ./prometheus/adapter-value.yaml promadapter-release prometheus-community/prometheus-adapter",
+    "podForward": "kubectl port-forward service/my-service --address 0.0.0.0 3000:3000",
+    "promForward": "kubectl port-forward service/prom-release-prometheus-server --address 0.0.0.0 9090:80",
+    "grafanaForward": "microk8s kubectl port-forward -n monitoring service/grafana --address 0.0.0.0 3000:3000",
+    "getraw": "kubectl get --raw=\"/apis/custom.metrics.k8s.io/v1beta1/namespaces/default/pods/*/occupied\" | jq",
+    "build":"docker build -t npinkam/testk8s:latest ./js && docker push npinkam/testk8s:latest",
+    "rollout": "npm run build && kubectl rollout restart deployment/my-deployment"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}

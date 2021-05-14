@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: my-sts
+spec:
+  serviceName: my-service
+  selector:
+    matchLabels:
+      app: testk8s-app
+  replicas: 3
+  template:
+    metadata:
+      labels:
+        app: testk8s-app
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "3000"
+    spec:
+      containers:
+      - name: node-app
+        image: docker.io/npinkam/testk8s:latest
+        ports:
+        - containerPort: 3000
+          name: metrics
+        volumeMounts:
+        - name: my-volume
+          mountPath: /app/userData
+      volumes:
+        - name: my-volume
+          persistentVolumeClaim:
+            claimName: my-pvc
